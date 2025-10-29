@@ -7,7 +7,7 @@ import orjson
 import questionary
 
 from modules.scrape_module import scrape
-from modules.scrape_update_module import scrape_update
+from modules.scrape_update_module import scrape_update, scrape_multi_update
 from scrape_config import DownloadUserAvatarMode, ScrapeConfig, ScrapeConfigKeys, PostFilterType
 from tieba_auth import TiebaAuth
 from utils.cli_questionary import InfoStyle
@@ -152,6 +152,7 @@ class ProgramFeatures(IntEnum):
     SCRAPE_UPDATE = auto()
     EXPORT_TO_READABLE = auto()
     MODIFY_SCRAPE_CONFIG = auto()
+    SCRAPE_MULTI_UPDATE = auto()
 
 
 def main():
@@ -165,6 +166,10 @@ def main():
         questionary.Choice(
             f"{next(counter)}. 更新本地的帖子数据",
             ProgramFeatures.SCRAPE_UPDATE,
+        ),
+        questionary.Choice(
+            f"{next(counter)}. 更新多个本地的帖子数据",
+            ProgramFeatures.SCRAPE_MULTI_UPDATE,
         ),
         questionary.Choice(
             f"{next(counter)}. 导出为可读文件(未实现)",
@@ -191,6 +196,11 @@ def main():
             read_scrape_config()
             path = input("请输入本地帖子数据的路径: ")
             asyncio.run(scrape_update(path))
+        elif ProgramFeatures.SCRAPE_MULTI_UPDATE == selected_features:
+            read_tieba_auth()
+            read_scrape_config()
+            path = input("请输入存储多个帖子数据的路径: ")
+            asyncio.run(scrape_multi_update(path))
         elif ProgramFeatures.EXPORT_TO_READABLE == selected_features:
             print(f"{PrintColor.RED}该功能尚未实现{PrintColor.RESET}")
         elif ProgramFeatures.MODIFY_SCRAPE_CONFIG == selected_features:
